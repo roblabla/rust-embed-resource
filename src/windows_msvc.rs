@@ -141,24 +141,11 @@ fn include_windows_10_kits(kit_root: &str) {
 }
 
 fn include_windows_10_kits_impl(kit_root: &str) {
-    const VAR_INCLUDE: &str = "INCLUDE";
-
-    if let Ok(include_root) = fs::read_dir(kit_root.to_string() + r"\Include\") {
-        let mut include = env::var(VAR_INCLUDE).unwrap_or_default();
-        if !include.ends_with(';') {
-            include.push(';');
+    let target = std::env::var("TARGET").expect("No TARGET env var");
+    if let Some(tool) = cc::windows_registry::find_tool(target.as_str(), "cl.exe") {
+        if let Some((_key, include)) = tool.env().iter().find(|(key, val)| key == "INCLUDE") {
+            std::env::set_var("INCLUDE", include);
         }
-
-        get_dirs(include_root).filter_map(|dir| fs::read_dir(dir.path()).ok()).for_each(|dir| {
-            get_dirs(dir).for_each(|sub_dir| if let Some(sub_dir) = sub_dir.path().to_str() {
-                if !include.contains(sub_dir) {
-                    include.push_str(sub_dir);
-                    include.push(';');
-                }
-            })
-        });
-
-        env::set_var(VAR_INCLUDE, include);
     }
 }
 

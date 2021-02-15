@@ -32,6 +32,7 @@ cc = "1.0"
 
 [target.'cfg(all(target_os = "windows", target_env = "msvc"))'.dependencies]
 vswhom = "0.1"
+cc = "1.0"
 
 [target.'cfg(all(target_os = "windows", target_env = "msvc"))'.dependencies.winreg]
 version = "0.8"
